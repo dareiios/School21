@@ -1,0 +1,67 @@
+stages:
+  - build
+  - style
+  - testiki
+  - deploy
+
+build-code-job:
+  stage: build
+  tags:
+    - cicdR2
+  script:
+    - cd src/C3_SimpleBashUtils-0/src/cat
+    - make 
+    - cd ../grep
+    - make 
+  artifacts:
+    paths:
+      - src/C3_SimpleBashUtils-0/src/cat/s21_cat
+      - src/C3_SimpleBashUtils-0/src/grep/s21_grep
+    expire_in: 30 days
+  after_script:
+    - cd src
+    - echo "popa"
+    - bash tg.sh "🛠Build is"
+
+
+style-check:
+  stage: style
+  tags: 
+    - cicdR2
+  script:
+    - cd src/C3_SimpleBashUtils-0/src/cat
+    - clang-format -n -Werror *.c *.h
+    - cd ../grep
+    - clang-format -n -Werror *.c *.h
+  after_script:
+    - cd src
+    - bash tg.sh "👠Style is"
+
+tests:
+  stage: testiki
+  tags:
+    - cicdR2
+  script:
+    - cd src/C3_SimpleBashUtils-0/src/cat
+    - bash test_func_cat.sh
+    - cd ../grep
+    - bash test_func_grep.sh
+  after_script:
+    - cd src
+    - bash tg.sh "📝Tests are"
+
+
+Deploy:
+  stage: deploy
+  tags:
+    - cicdR2
+  when: manual
+  script:
+    - sh src/deploy.sh
+  after_script:
+    - cd src
+    - bash tg.sh "🥴Deploy is"
+
+
+
+# ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCo2HE8a4xSC09c0SnoE8fCmiyaHj1vwAPUajR0h8ww/ieaHGZt4sDED70WjfggUa+AY6CdVYH5x4Az0ujWGmG/nPz7h0mdA8wSlwk47ayCsgeez8av5xfvVOM46AE/qc2+IeKPH0eiOggZ07v7KT5qCzo1ZfianPQc644t5YtC52pk0joAHdVOvHsV9Xxk6f+1C1Vu0V3d15puJU0QIBt/cXtPYXb0Saiyeykcgquh0jTvjRcCvjJU5Lm3ddJDPZ8iZ52oj+ynRzHv38XfYYgNLkCap5zMasfVuhGui7jHuUjHD/g1M2FbYEfQIE91gZ3PH6b4OpqRkuHki7cveIWFp8GUz2Iljh7H1AnmJhASvTt1dHKUJbRVKlwC4rBEYTff0fj8lSKmtOILqGmJvthJDnR0jdjQvEj16F8ASs9r1hNXyajxeDWvxrjWCYW6w55BU4kYjdZ4kidNjik8/UdCXdBI8PtLHU+anezGmCQpe9OEhRRKVwcovko7qG8XTQc= gitlab-runner@fritzshi
